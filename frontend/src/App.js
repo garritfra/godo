@@ -1,4 +1,5 @@
 import { useQuery, gql } from "@apollo/client";
+import useCreateTodo from "./mutations/createTodo";
 
 import React, { useEffect, useState } from "react";
 import "./App.css";
@@ -72,6 +73,7 @@ function App() {
     `;
 
     const { data, loading, error } = useQuery(TODO_QUERY);
+    const createTodo = useCreateTodo();
 
     const [todos, setTodos] = useState([
         {
@@ -86,8 +88,9 @@ function App() {
         }
     }, [loading, data, error]);
 
-    const addTodo = (text) => {
+    const addTodo = async (text) => {
         const newTodos = [...todos, { text }];
+        createTodo({ text: text });
         setTodos(newTodos);
     };
 
