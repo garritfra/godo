@@ -12,16 +12,54 @@ import (
 	"github.com/garritfra/godo/graph/model"
 )
 
-func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
+func (r *mutationResolver) CreateTodo(ctx context.Context, input model.CreateTodoInput) (*model.Todo, error) {
 	todo := &model.Todo{
 		ID:   fmt.Sprintf("T%d", rand.Int()),
 		Text: input.Text,
 		Done: false,
-		User: &model.User{},
 	}
 	r.todos = append(r.todos, todo)
 
 	return todo, nil
+}
+
+func (r *mutationResolver) UpdateTodo(ctx context.Context, input model.UpdateTodoInput) (*model.Todo, error) {
+	var affectedTodo *model.Todo
+	for _, todo := range r.todos {
+		if todo.ID == input.ID {
+			affectedTodo = todo
+		}
+	}
+
+	if affectedTodo == nil {
+		return nil, nil
+	}
+
+	if input.Done != nil {
+		affectedTodo.Done = *input.Done
+	}
+
+	if input.Text != nil {
+		affectedTodo.Text = *input.Text
+	}
+
+	return affectedTodo, nil
+}
+
+func (r *mutationResolver) DeleteTodo(ctx context.Context, input model.DeleteTodoInput) (*model.Todo, error) {
+
+	for index, todo := range r.todos {
+		if todo.ID == input.ID {
+			r.todos = RemoveIndex(r.todos, index)
+			return todo, nil
+		}
+	}
+
+	return nil, nil
+}
+
+func RemoveIndex(s []*model.Todo, index int) []*model.Todo {
+	return append(s[:index], s[index+1:]...)
 }
 
 func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
