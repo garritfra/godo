@@ -9,7 +9,7 @@ import (
 
 	"github.com/garritfra/godo/graph/generated"
 	"github.com/garritfra/godo/graph/model"
-	uuid "github.com/satori/go.uuid"
+	"github.com/satori/go.uuid"
 )
 
 func (r *mutationResolver) CreateTodo(ctx context.Context, input model.CreateTodoInput) (*model.Todo, error) {
