@@ -1,11 +1,12 @@
 import { useQuery, gql } from "@apollo/client";
 import useCreateTodo from "./mutations/createTodo";
+import useUpdateTodo from "./mutations/updateTodo";
+import useDeleteTodo from "./mutations/deleteTodo";
 
 import React, { useEffect, useState } from "react";
 import "./App.css";
 import { Button, Card, Form, Spinner } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
-import useUpdateTodo from "./mutations/updateTodo";
 
 function Todo({ todo, index, markTodo, removeTodo }) {
     return (
@@ -76,14 +77,9 @@ function App() {
     const { data, loading, error } = useQuery(TODO_QUERY);
     const createTodo = useCreateTodo();
     const updateTodo = useUpdateTodo();
+    const deleteTodo = useDeleteTodo();
 
-    const [todos, setTodos] = useState([
-        {
-            text: "This is a sampe todo",
-            done: false,
-            id: "1",
-        },
-    ]);
+    const [todos, setTodos] = useState([]);
 
     useEffect(() => {
         if (!loading && !error && data) {
@@ -92,8 +88,9 @@ function App() {
     }, [loading, data, error]);
 
     const addTodo = async (text) => {
-        const newTodos = [...todos, { text }];
-        createTodo({ text: text });
+        const { data } = await createTodo({ text: text });
+        const newTodos = [...todos, data.createTodo];
+        console.log(todos, newTodos);
         setTodos(newTodos);
     };
 
@@ -104,9 +101,9 @@ function App() {
         updateTodo(newTodos[index]);
     };
 
-    const removeTodo = (index) => {
-        const newTodos = [...todos];
-        newTodos.splice(index, 1);
+    const removeTodo = async (index) => {
+        await deleteTodo(todos[index].id);
+        const newTodos = todos.filter(({ id }) => id !== todos[index].id);
         setTodos(newTodos);
     };
 
