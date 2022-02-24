@@ -5,11 +5,12 @@ import React, { useEffect, useState } from "react";
 import "./App.css";
 import { Button, Card, Form, Spinner } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
+import useUpdateTodo from "./mutations/updateTodo";
 
 function Todo({ todo, index, markTodo, removeTodo }) {
     return (
         <div className="todo">
-            <span style={{ textDecoration: todo.isDone ? "line-through" : "" }}>
+            <span style={{ textDecoration: todo.done ? "line-through" : "" }}>
                 {todo.text}
             </span>
             <div>
@@ -74,11 +75,13 @@ function App() {
 
     const { data, loading, error } = useQuery(TODO_QUERY);
     const createTodo = useCreateTodo();
+    const updateTodo = useUpdateTodo();
 
     const [todos, setTodos] = useState([
         {
             text: "This is a sampe todo",
-            isDone: false,
+            done: false,
+            id: "1",
         },
     ]);
 
@@ -96,8 +99,9 @@ function App() {
 
     const markTodo = (index) => {
         const newTodos = [...todos];
-        newTodos[index].isDone = true;
+        newTodos[index] = { ...todos[index], done: !todos[index].done };
         setTodos(newTodos);
+        updateTodo(newTodos[index]);
     };
 
     const removeTodo = (index) => {

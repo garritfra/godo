@@ -4,11 +4,35 @@ import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 
-import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
+import {
+    ApolloClient,
+    InMemoryCache,
+    ApolloProvider,
+    ApolloLink,
+    from,
+    HttpLink,
+} from "@apollo/client";
 
+const omitTypeNameLink = new ApolloLink((operation, forward) => {
+    if (operation.variables) {
+        operation.variables = JSON.parse(
+            JSON.stringify(operation.variables),
+            omitTypename
+        );
+    }
+
+    return forward(operation);
+});
+
+function omitTypename(key, value) {
+    return key === "__typename" ? undefined : value;
+}
 const client = new ApolloClient({
-    uri: "http://localhost:8080/query",
     cache: new InMemoryCache(),
+    link: from([
+        omitTypeNameLink,
+        new HttpLink({ uri: "http://localhost:8080/query" }),
+    ]),
 });
 
 ReactDOM.render(
