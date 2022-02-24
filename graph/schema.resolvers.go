@@ -6,17 +6,26 @@ package graph
 import (
 	"context"
 	"fmt"
+	"math/rand"
 
 	"github.com/garritfra/godo/graph/generated"
 	"github.com/garritfra/godo/graph/model"
 )
 
 func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
-	panic(fmt.Errorf("not implemented"))
+	todo := &model.Todo{
+		ID:   fmt.Sprintf("T%d", rand.Int()),
+		Text: input.Text,
+		Done: false,
+		User: &model.User{},
+	}
+	r.todos = append(r.todos, todo)
+
+	return todo, nil
 }
 
 func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
-	panic(fmt.Errorf("not implemented"))
+	return r.todos, nil
 }
 
 // Mutation returns generated.MutationResolver implementation.
