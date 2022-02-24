@@ -6,64 +6,58 @@ package graph
 import (
 	"context"
 	"fmt"
-	"math/rand"
 
 	"github.com/garritfra/godo/graph/generated"
 	"github.com/garritfra/godo/graph/model"
+	uuid "github.com/satori/go.uuid"
 )
 
 func (r *mutationResolver) CreateTodo(ctx context.Context, input model.CreateTodoInput) (*model.Todo, error) {
+	u1 := uuid.NewV4()
 	todo := &model.Todo{
-		ID:   fmt.Sprintf("T%d", rand.Int()),
+		ID:   u1.String(),
 		Text: input.Text,
 		Done: false,
 	}
-	r.todos = append(r.todos, todo)
+	result := r.DB.Create(&todo)
 
-	return todo, nil
+	return todo, result.Error
 }
 
 func (r *mutationResolver) UpdateTodo(ctx context.Context, input model.UpdateTodoInput) (*model.Todo, error) {
-	var affectedTodo *model.Todo
-	for _, todo := range r.todos {
-		if todo.ID == input.ID {
-			affectedTodo = todo
-		}
-	}
+	var todo *model.Todo
 
-	if affectedTodo == nil {
-		return nil, nil
+	result := r.DB.First(&todo).Where("id", input.ID)
+
+	if result.Error != nil {
+		return nil, result.Error
 	}
 
 	if input.Done != nil {
-		affectedTodo.Done = *input.Done
+		todo.Done = *input.Done
 	}
 
 	if input.Text != nil {
-		affectedTodo.Text = *input.Text
+		todo.Text = *input.Text
 	}
 
-	return affectedTodo, nil
+	result = r.DB.Save(&todo)
+
+	return todo, result.Error
 }
 
 func (r *mutationResolver) DeleteTodo(ctx context.Context, input model.DeleteTodoInput) (*model.Todo, error) {
+	var todo *model.Todo
 
-	removeIndex := func(s []*model.Todo, index int) []*model.Todo {
-		return append(s[:index], s[index+1:]...)
-	}
-
-	for index, todo := range r.todos {
-		if todo.ID == input.ID {
-			r.todos = removeIndex(r.todos, index)
-			return todo, nil
-		}
-	}
-
-	return nil, nil
+	result := r.DB.First(&todo).Where("id", input.ID).Delete(&model.Todo{})
+	return todo, result.Error
 }
 
 func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
-	return r.todos, nil
+	var todos []*model.Todo
+	result := r.DB.Find(&todos)
+	fmt.Println(todos)
+	return todos, result.Error
 }
 
 // Mutation returns generated.MutationResolver implementation.

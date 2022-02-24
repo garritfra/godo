@@ -90,7 +90,6 @@ function App() {
     const addTodo = async (text) => {
         const { data } = await createTodo({ text: text });
         const newTodos = [...todos, data.createTodo];
-        console.log(todos, newTodos);
         setTodos(newTodos);
     };
 

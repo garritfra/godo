@@ -1,12 +1,35 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/garritfra/godo/graph"
 	"github.com/garritfra/godo/graph/generated"
+	"github.com/garritfra/godo/graph/model"
 	"github.com/gin-gonic/gin"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
+
+var db *gorm.DB
+
+func init() {
+	newDb, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
+	db = newDb
+
+	db.AutoMigrate(&model.Todo{})
+
+	if err != nil {
+		panic("failed to connect database")
+	}
+
+	if err != nil {
+		fmt.Println(err)
+		panic("failed to connect database")
+	}
+}
 
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -27,7 +50,7 @@ func CORSMiddleware() gin.HandlerFunc {
 func graphqlHandler() gin.HandlerFunc {
 	// NewExecutableSchema and Config are in the generated.go file
 	// Resolver is in the resolver.go file
-	h := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
+	h := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{DB: db}}))
 
 	return func(c *gin.Context) {
 		h.ServeHTTP(c.Writer, c.Request)
