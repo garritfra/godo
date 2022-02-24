@@ -56,7 +56,7 @@ function FormTodo({ addTodo }) {
                     placeholder="Add new todo"
                 />
             </Form.Group>
-            <Button variant="primary mb-3" type="submit">
+            <Button variant="primary mb-3 mt-3" type="submit">
                 Submit
             </Button>
         </Form>
@@ -120,7 +120,7 @@ function App() {
                 <FormTodo addTodo={addTodo} />
                 <div>
                     {todos.map((todo, index) => (
-                        <Card key={index}>
+                        <Card key={index} className="mb-3">
                             <Card.Body>
                                 <Todo
                                     key={index}
