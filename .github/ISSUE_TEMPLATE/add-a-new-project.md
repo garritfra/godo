@@ -26,7 +26,8 @@ assignees: ''
 ### Meta Information (Please fill out)
 
 - [ ] I have read the [FAQ section](https://seeking-maintainers.net/faq) and confirm that my project is eligible to be added to the list
-- [ ] The title of this issue only displays the name of my project
+- [ ] The title of this issue only displays the name of my project
+- [ ] I have filled out the code snippet below
 
 ```yaml
 # A link to the code repository or homepage of the project
